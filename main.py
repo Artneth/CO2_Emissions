@@ -3,17 +3,64 @@ import joblib
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 # Load trained model
 model = joblib.load("xgb_model.pkl")
 
+# Define manual encodings for categorical features
+vehicle_class_mapping = {
+    'COMPACT': 0,
+    'SUV - SMALL': 1,
+    'MID-SIZE': 2,
+    'TWO-SEATER': 3,
+    'MINICOMPACT': 4,
+    'SUBCOMPACT': 5,
+    'FULL-SIZE': 6,
+    'STATION WAGON - SMALL': 7,
+    'SUV - STANDARD': 8,
+    'VAN - CARGO': 9,
+    'VAN - PASSENGER': 10,
+    'PICKUP TRUCK - STANDARD': 11,
+    'MINIVAN': 12,
+    'SPECIAL PURPOSE VEHICLE': 13,
+    'STATION WAGON - MID-SIZE': 14,
+    'PICKUP TRUCK - SMALL': 15
+}
+
+transmission_mapping = {
+    'AS': 0,
+    'M': 1,
+    'AV': 2,
+    'AM': 3,
+    'A': 4
+}
+
+fuel_type_mapping = {
+    'Z': 0,
+    'D': 1,
+    'X': 2,
+    'E': 3,
+    'N': 4
+}
+
+# Define manual scaling parameters for numeric features
+scaling_params = {
+    'engine_size': {'mean': 3.5, 'std': 1.2},
+    'cylinders': {'mean': 6.0, 'std': 2.0},
+    'fuel_consumption_city': {'mean': 12.0, 'std': 3.0},
+    'fuel_consumption_hwy': {'mean': 9.0, 'std': 2.5},
+    'fuel_consumption_comb(l/100km)': {'mean': 10.5, 'std': 2.8},
+    'fuel_consumption_comb(mpg)': {'mean': 25.0, 'std': 5.0}
+}
+
 # Streamlit UI
 st.title("🚗 CO₂ Emission Prediction App")
 
 st.sidebar.header("Input Features")
-vehicle_class = st.sidebar.selectbox('Vehicle Class',
+vehicle_class = st.sidebar.selectbox(
+    'Vehicle Class',
     ['COMPACT', 'SUV - SMALL', 'MID-SIZE', 'TWO-SEATER', 'MINICOMPACT',
      'SUBCOMPACT', 'FULL-SIZE', 'STATION WAGON - SMALL',
      'SUV - STANDARD', 'VAN - CARGO', 'VAN - PASSENGER',
@@ -31,7 +78,7 @@ fuel_consumption_hwy = st.sidebar.slider("Fuel Consumption (Highway) (L/100 km)"
 fuel_consumption_comb = st.sidebar.slider("Fuel Consumption (Combined) (L/100 km)", 4, 25)
 fuel_consumption_comb_mpg = st.sidebar.slider("Fuel Consumption (Combined) (MPG)", 10, 70)
 
-# Create DataFrame
+# Create DataFrame for input data
 input_data = pd.DataFrame({
     'vehicle_class': [vehicle_class],
     'engine_size': [engine_size],
@@ -45,26 +92,26 @@ input_data = pd.DataFrame({
 })
 
 # Define numeric columns for standardization
-numeric_cols = ['engine_size', 'cylinders', 'fuel_consumption_city', 
-               'fuel_consumption_hwy', 'fuel_consumption_comb(l/100km)', 
-               'fuel_consumption_comb(mpg)']
+numeric_cols = ['engine_size', 'cylinders', 'fuel_consumption_city',
+                'fuel_consumption_hwy', 'fuel_consumption_comb(l/100km)',
+                'fuel_consumption_comb(mpg)']
 
-# 🔹 Encode Categorical Features
-encoder = LabelEncoder()
+# 🔹 Encode Categorical Features (using manual mappings)
+input_data['vehicle_class'] = input_data['vehicle_class'].map(vehicle_class_mapping)
+input_data['transmission'] = input_data['transmission'].map(transmission_mapping)
+input_data['fuel_type'] = input_data['fuel_type'].map(fuel_type_mapping)
 
-# Load label encoder (if used in training)
-input_data['vehicle_class'] = encoder.fit_transform(input_data['vehicle_class'])
-input_data['transmission'] = encoder.fit_transform(input_data['transmission'])
-input_data['fuel_type'] = encoder.fit_transform(input_data['fuel_type'])
+# 🔹 Standardize Numeric Features (using manual scaling parameters)
+for col in numeric_cols:
+    input_data[col] = (input_data[col] - scaling_params[col]['mean']) / scaling_params[col]['std']
 
-# Standardize numeric features
-scaler = StandardScaler()
-input_data[numeric_cols] = scaler.fit_transform(input_data[numeric_cols])
-
-# Predict CO2 emissions
+# Predict CO₂ emissions
 if st.button("Predict CO₂ Emissions"):
     prediction = model.predict(input_data)
     st.success(f"🚗 Estimated CO₂ Emissions: **{prediction[0]:.2f} g/km**")
+
+encoder = LabelEncoder()
+scaler = StandardScaler()
 
 # CSV Batch Prediction
 st.subheader("📂 Upload CSV for Bulk Predictions")
