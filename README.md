@@ -1,4 +1,4 @@
-# 🚗 CO2 Emission Prediction
+# 🚗 CO2 Emission Predictions
 
 This project predicts **CO2 emissions** based on vehicle specifications such as engine size, fuel type, transmission, and vehicle class.
 
