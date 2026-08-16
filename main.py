@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 # Load trained model
-model = joblib.load("xgb_model.pkl")
+model = joblib.load("models/xgb_model.pkl")
 
 # Define manual encodings for categorical features
 vehicle_class_mapping = {
