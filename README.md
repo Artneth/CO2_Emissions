@@ -5,7 +5,7 @@ A Streamlit app that predicts vehicle CO₂ emissions (g/km) from vehicle specif
 ## Use the Trained Model
 **🔗 Live demo:** [co2emissions-zkwn3fweqlqmcuir8fnbj4.streamlit.app](https://co2emissions-zkwn3fweqlqmcuir8fnbj4.streamlit.app/)
 
-![App Screenshot](https://raw.githubusercontent.com/Artneth/CO2_Emissions/refs/heads/main/assets/app_screenshot.png)
+![App Screenshot](./assets/app_screenshot.png)
 
 ### Features
 
